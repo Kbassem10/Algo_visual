@@ -38,7 +38,7 @@ Algo_visual/
    cd Algo_visual
    ```
 
-2. **Create and activate a virtual environment (recommended)**
+2. **Create and activate a virtual environment (optional and not required)**
 
    On Windows:
    ```bash
