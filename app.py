@@ -1,12 +1,36 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, jsonify
 import os
 from algorithms import bubble_sort
 
 app = Flask(__name__)
 
+ALLOWED_ALGORITHMS = {
+    'bubble': bubble_sort.bubble_sort
+}
+
 @app.route("/")
 def index():
     return render_template("index.html")
+
+@app.route("/sort")
+def sort():
+    data = request.get_json()
+    array = data.get('array')
+    selected = data.get('algorithms')
+
+    if not array or not selected:
+        return jsonify({'error': 'Invalid input'}), 400
+
+    results = {}
+
+    for algo in selected:
+        if algo in ALLOWED_ALGORITHMS:
+            result = ALLOWED_ALGORITHMS[algo](array[:])
+            results[algo] = result
+        else:
+            results[algo] = {'error': 'Unsupported'}
+
+    return jsonify(results)
 
 @app.errorhandler(404)
 def page_not_found(error):
