@@ -1,11 +1,13 @@
 from flask import Flask, render_template, request, redirect, jsonify
 import os
-from algorithms import bubble_sort
+from algorithms import bubble_sort, selection_sort, insertion_sort
 
 app = Flask(__name__)
 
 ALLOWED_ALGORITHMS = {
-    'bubble': bubble_sort.bubble_sort
+    'bubble': bubble_sort.bubble_sort,
+    'selection': selection_sort.selection_sort,
+    'insertion': insertion_sort.insertion_sort
 }
 
 @app.route("/")
