@@ -1,0 +1,55 @@
+ Algorithm Visualization Project Proposal
+
+Team Members:
+- [Karim Bassem Joseph] ID: 231000797 - Project Lead & Backend Developer
+- [Nadeem diaa shokry] ID: 231000857 - Frontend Developer
+- [Ahmed Khaled shalaby] ID: 231000514 - Algorithm Specialist and UI/UX
+- [Mahmoud Ahmed Farag ] ID: 231002115 - Algorithm Specialist and and Testing
+
+Project Objectives
+1. Design and implement an intuitive web interface for sorting algorithms visualization
+2. Develop step-by-step visual representations of common algorithms
+3 Allow users to input custom data sets to observe algorithm behavior
+4. Compare performance metrics across different algorithms
+
+ Technologies Used
+- Backend: Python with Flask framework
+- Frontend: HTML, CSS, JavaScript
+- Algorithms: Python implementation of sorting algorithms (bubble sort, insertion sort, selection sort, etc.)
+
+ Features and Functionality
+1. Algorithm Visualization Library
+   - Step-by-step visualization of sorting algorithms (bubble, selection, insertion, etc.)
+
+2. Interactive User Interface
+   - User-friendly controls for starting/pausing/stepping through visualizations
+   - Custom data input options
+   - Speed/delay controls for the visualization
+
+3. Educational Components
+   - Time and space complexity information
+   - Comparisons between algorithms
+
+4. User Experience
+   - Responsive design for various devices
+   - Comprehensive error handling
+   - Intuitive navigation
+
+ Implementation Plan
+1. Phase 1: Foundation (1 week)
+   - Set up Flask application structure
+   - Implement core algorithm logic
+   - Develop basic visualization framework
+
+2. Phase 2: User Interface (1 week)
+   - Design and implement the frontend interface
+   - Create visualization components
+   - Connect frontend to backend API
+
+3. Phase 3: Additional Algorithms (1 week)
+   - Add more sorting algorithms (quick sort, merge sort, etc.)
+
+4. Phase 4: Enhancement and Testing (1 week)
+   - Performance optimization
+   - Cross-browser testing
+   - User acceptance testing
