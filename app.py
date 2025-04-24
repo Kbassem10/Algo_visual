@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, jsonify
 import os
+import json
 from algorithms import bubble_sort, selection_sort, insertion_sort
 
 app = Flask(__name__)
@@ -12,25 +13,35 @@ ALLOWED_ALGORITHMS = {
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    list_of_algo = []
+    for algo in ALLOWED_ALGORITHMS:
+        list_of_algo.append(algo)
+    
+    print(list_of_algo)
+    return render_template("index.html", list_of_algo=list_of_algo)
 
 @app.route("/sort")
 def sort():
-    data = request.get_json()
-    array = data.get('array')
-    selected = data.get('algorithms')
-
-    if not array or not selected:
+    array_str = request.args.get('array')
+    algorithms_str = request.args.get('algorithms')
+    
+    if not array_str or not algorithms_str:
         return jsonify({'error': 'Invalid input'}), 400
+    
+    try:
+        array = json.loads(array_str)
+        selected_algorithms = json.loads(algorithms_str)
+    except json.JSONDecodeError:
+        return jsonify({'error': 'Invalid JSON format'}), 400
 
     results = {}
 
-    for algo in selected:
+    for algo in selected_algorithms:
         if algo in ALLOWED_ALGORITHMS:
             result = ALLOWED_ALGORITHMS[algo](array[:])
             results[algo] = result
         else:
-            results[algo] = {'error': 'Unsupported'}
+            results[algo] = {'error': 'Unsupported algorithm'}
 
     return jsonify(results)
 
@@ -57,3 +68,6 @@ def server_error(error):
 @app.errorhandler(500)
 def internal_server_error(error):
     return render_template('error_handle.html', error_code = "500", error_description="Something Went Wrong."), 500
+
+if __name__ == "__main__":
+    app.run(debug=True)

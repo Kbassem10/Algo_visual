@@ -1,1 +1,68 @@
-<h1>Hello, World</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sorting Algorithm Visualizer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Algorithm Visualizer</h1>
+        <p>Visualize and understand sorting algorithms</p>
+    </header>
+
+    <main>
+        <section class="controls">
+            <div class="input-section">
+                <h2>Input Array</h2>
+                <input type="text" id="array-input" placeholder="Enter numbers separated by commas (e.g., 64,34,25,12,22,11)">
+                <button id="generate-random">Generate Random Array</button>
+            </div>
+
+            <div class="algorithm-section">
+                <h2>Select Algorithms</h2>
+                <div class="algorithm-options">
+                    {% for algo in list_of_algo %}
+                        <label>
+                            <input type="checkbox" name="algorithm" value="{{ algo }}"> {{algo}} Sort
+                        </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button id="start-btn">Start Visualization</button>
+                <button id="pause-btn" disabled>Pause</button>
+                <button id="step-btn" disabled>Step</button>
+                <button id="reset-btn" disabled>Reset</button>
+            </div>
+
+            <div class="speed-control">
+                <label for="speed-slider">Animation Speed:</label>
+                <input type="range" id="speed-slider" min="1" max="10" value="5">
+            </div>
+        </section>
+
+        <section class="visualization">
+            <div id="visualization-container">
+                <!--Place holder for the js to be generated in here-->
+            </div>
+        </section>
+
+        <section class="algorithm-info">
+            <h2>Algorithm Information</h2>
+            <div id="algorithm-description">
+                <p>Select an algorithm to see its description and complexity.</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Sorting Algorithm Visualizer</p>
+        <p>By: Karim Bassem Joseph, Nadeem Diaa Shokry, Ahmed Khaled shalaby, Mahmoud Ahmed Farag</p>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/visualizer.js') }}"></script>
+</body>
+</html>
