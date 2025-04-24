@@ -150,6 +150,82 @@ section {
     background-color: #2ecc71;
 }
 
+/* New styles for divide and conquer visualizations */
+.bar.dividing {
+    background-color: #9b59b6; /* Purple */
+    border: 1px dashed #6c3483;
+}
+
+.bar.divider {
+    border-right: 3px solid #f39c12; /* Orange border to mark division point */
+}
+
+.bar.merging-left {
+    background-color: #3498db; /* Blue */
+    border: 1px solid #2980b9;
+}
+
+.bar.merging-right {
+    background-color: #1abc9c; /* Turquoise */
+    border: 1px solid #16a085;
+}
+
+.bar.pivot {
+    background-color: #f1c40f; /* Yellow */
+    border: 2px solid #f39c12;
+    position: relative;
+}
+
+.bar.pivot::after {
+    content: "P";
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-weight: bold;
+    color: #f39c12;
+}
+
+.bar.partitioning {
+    background-color: #e67e22; /* Orange */
+    opacity: 0.8;
+}
+
+.bar.merged {
+    background-color: #27ae60; /* Emerald green to indicate successful merge */
+    border: 1px solid #219653;
+}
+
+.bar.placing {
+    background-color: #f39c12; /* Orange for placement operations */
+    transition: height 0.3s ease, background-color 0.3s ease;
+}
+
+/* Add visualization legend */
+.algorithm-legend {
+    margin-top: 10px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    margin-right: 15px;
+}
+
+.legend-color {
+    width: 20px;
+    height: 20px;
+    margin-right: 5px;
+    border-radius: 3px;
+}
+
 .algorithm-info {
     padding: 20px;
 }

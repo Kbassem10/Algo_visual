@@ -48,6 +48,18 @@ document.addEventListener('DOMContentLoaded', function() {
             description: "Insertion Sort builds the final sorted array one item at a time. It is much less efficient on large lists than more advanced algorithms such as quicksort, heapsort, or merge sort.",
             timeComplexity: "O(n²)",
             spaceComplexity: "O(1)"
+        },
+        quick: {
+            name: "Quick Sort",
+            description: "Quick Sort is a divide-and-conquer algorithm that works by selecting a 'pivot' element from the array and partitioning the other elements into two sub-arrays according to whether they are less than or greater than the pivot.",
+            timeComplexity: "Average: O(n log n), Worst: O(n²)",
+            spaceComplexity: "O(log n)"
+        },
+        merge: {
+            name: "Merge Sort",
+            description: "Merge Sort is an efficient, stable, divide-and-conquer algorithm that divides the input array into two halves, recursively sorts them, and then merges the sorted halves.",
+            timeComplexity: "O(n log n)",
+            spaceComplexity: "O(n)"
         }
     };
 
@@ -291,6 +303,78 @@ document.addEventListener('DOMContentLoaded', function() {
                 bars[i].setAttribute('data-value', valueJ);
                 bars[j].setAttribute('data-value', valueI);
             }
+        } else if (step.divide) {
+            // Highlight the subarray being divided
+            const start = step.divide[0];
+            const end = step.divide[1];
+            
+            for (let i = start; i <= end && i < bars.length; i++) {
+                bars[i].classList.add('dividing');
+            }
+            
+            // Optional: Add a visual divider
+            if (step.divide[2]) { // If there's a midpoint specified
+                const mid = step.divide[2];
+                if (mid < bars.length - 1) {
+                    bars[mid].classList.add('divider');
+                }
+            }
+        } else if (step.merge) {
+            // Highlight the subarrays being merged
+            const start = step.merge[0];
+            const mid = step.merge[1];
+            const end = step.merge[2];
+            
+            // Highlight left subarray
+            for (let i = start; i <= mid && i < bars.length; i++) {
+                bars[i].classList.add('merging-left');
+            }
+            
+            // Highlight right subarray
+            for (let i = mid + 1; i <= end && i < bars.length; i++) {
+                bars[i].classList.add('merging-right');
+            }
+        } else if (step.pivot) {
+            // Highlight the pivot element in quicksort
+            const pivotIndex = step.pivot;
+            if (pivotIndex < bars.length) {
+                bars[pivotIndex].classList.add('pivot');
+            }
+        } else if (step.partition) {
+            // Highlight the entire partition being processed
+            const start = step.partition[0];
+            const end = step.partition[1];
+            
+            for (let i = start; i <= end && i < bars.length; i++) {
+                bars[i].classList.add('partitioning');
+            }
+        } else if (step.place) {
+            // Direct placement of a value at an index (especially for merge sort)
+            const index = step.place[0];
+            const value = step.place[1];
+            
+            if (index < bars.length) {
+                bars[index].classList.add('placing');
+                
+                // Calculate the height based on the maximum value in the array
+                const maxValue = Math.max(...currentArray);
+                const heightPercent = Math.floor((value / maxValue) * 200) + 'px';
+                
+                // Update the bar's height and value
+                bars[index].style.height = heightPercent;
+                bars[index].setAttribute('data-value', value);
+                
+                // Also update our currentArray to keep track of the actual values
+                currentArray[index] = value;
+            }
+        } else if (step.mergeComplete) {
+            // Highlight the completed merged subarray
+            const start = step.mergeComplete[0];
+            const end = step.mergeComplete[1];
+            
+            for (let i = start; i <= end && i < bars.length; i++) {
+                bars[i].classList.add('merged');
+            }
         }
 
         // Move to next step
@@ -364,6 +448,78 @@ document.addEventListener('DOMContentLoaded', function() {
                     bars[j].style.height = heightI;
                     bars[i].setAttribute('data-value', valueJ);
                     bars[j].setAttribute('data-value', valueI);
+                }
+            } else if (step.divide) {
+                // Highlight the subarray being divided
+                const start = step.divide[0];
+                const end = step.divide[1];
+                
+                for (let i = start; i <= end && i < bars.length; i++) {
+                    bars[i].classList.add('dividing');
+                }
+                
+                // Optional: Add a visual divider
+                if (step.divide[2]) { // If there's a midpoint specified
+                    const mid = step.divide[2];
+                    if (mid < bars.length - 1) {
+                        bars[mid].classList.add('divider');
+                    }
+                }
+            } else if (step.merge) {
+                // Highlight the subarrays being merged
+                const start = step.merge[0];
+                const mid = step.merge[1];
+                const end = step.merge[2];
+                
+                // Highlight left subarray
+                for (let i = start; i <= mid && i < bars.length; i++) {
+                    bars[i].classList.add('merging-left');
+                }
+                
+                // Highlight right subarray
+                for (let i = mid + 1; i <= end && i < bars.length; i++) {
+                    bars[i].classList.add('merging-right');
+                }
+            } else if (step.pivot) {
+                // Highlight the pivot element in quicksort
+                const pivotIndex = step.pivot;
+                if (pivotIndex < bars.length) {
+                    bars[pivotIndex].classList.add('pivot');
+                }
+            } else if (step.partition) {
+                // Highlight the entire partition being processed
+                const start = step.partition[0];
+                const end = step.partition[1];
+                
+                for (let i = start; i <= end && i < bars.length; i++) {
+                    bars[i].classList.add('partitioning');
+                }
+            } else if (step.place) {
+                // Direct placement of a value at an index (especially for merge sort)
+                const index = step.place[0];
+                const value = step.place[1];
+                
+                if (index < bars.length) {
+                    bars[index].classList.add('placing');
+                    
+                    // Calculate the height based on the maximum value in the array
+                    const maxValue = Math.max(...currentArray);
+                    const heightPercent = Math.floor((value / maxValue) * 200) + 'px';
+                    
+                    // Update the bar's height and value
+                    bars[index].style.height = heightPercent;
+                    bars[index].setAttribute('data-value', value);
+                    
+                    // Also update our currentArray to keep track of the actual values
+                    currentArray[index] = value;
+                }
+            } else if (step.mergeComplete) {
+                // Highlight the completed merged subarray
+                const start = step.mergeComplete[0];
+                const end = step.mergeComplete[1];
+                
+                for (let i = start; i <= end && i < bars.length; i++) {
+                    bars[i].classList.add('merged');
                 }
             }
             
