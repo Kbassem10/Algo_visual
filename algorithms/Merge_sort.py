@@ -38,6 +38,3 @@ def merge_sort(arr):
     
     sort(0, n-1)
     return steps
-
-arr = [64, 25, 12, 22, 11]
-merge_sort(arr)
