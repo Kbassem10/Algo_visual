@@ -37,6 +37,7 @@ Algo_visual/
    git clone [repository-url]
    cd Algo_visual
    ```
+   Or Use github desktop
 
 2. **Create and activate a virtual environment (optional and not required)**
 
@@ -52,7 +53,7 @@ Algo_visual/
    source venv/bin/activate
    ```
 
-3. **Install dependencies**
+3. **Install dependencies (required)**
 
    ```bash
    pip install -r requirements.txt
@@ -117,10 +118,3 @@ The main application logic is in `app.py`. This file:
 - If you encounter import errors, make sure the `algorithms/__init__.py` file is properly importing all algorithm files.
 - For Flask errors, check the console output for detailed error messages.
 - Make sure all required directories exist before running the application.
-
-## Contributing
-
-1. Create a new branch for your feature
-2. Implement your changes
-3. Test your implementation thoroughly
-4. Submit a pull request for review
