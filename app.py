@@ -1,14 +1,15 @@
-from flask import Flask, render_template, request, redirect, jsonify
-import os
+from flask import Flask, render_template, request, jsonify
 import json
-from algorithms import bubble_sort, selection_sort, insertion_sort
+from algorithms import bubble_sort, selection_sort, insertion_sort, Merge_sort, Quick_sort
 
 app = Flask(__name__)
 
 ALLOWED_ALGORITHMS = {
     'bubble': bubble_sort.bubble_sort,
     'selection': selection_sort.selection_sort,
-    'insertion': insertion_sort.insertion_sort
+    'insertion': insertion_sort.insertion_sort,
+    'quick':Quick_sort.quick_sort,
+    'merge':Merge_sort.merge_sort
 }
 
 @app.route("/")
@@ -17,7 +18,6 @@ def index():
     for algo in ALLOWED_ALGORITHMS:
         list_of_algo.append(algo)
     
-    print(list_of_algo)
     return render_template("index.html", list_of_algo=list_of_algo)
 
 @app.route("/sort")
