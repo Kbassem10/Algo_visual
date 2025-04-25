@@ -311,14 +311,7 @@ document.addEventListener('DOMContentLoaded', function() {
             for (let i = start; i <= end && i < bars.length; i++) {
                 bars[i].classList.add('dividing');
             }
-            
-            // Optional: Add a visual divider
-            if (step.divide[2]) { // If there's a midpoint specified
-                const mid = step.divide[2];
-                if (mid < bars.length - 1) {
-                    bars[mid].classList.add('divider');
-                }
-            }
+
         } else if (step.merge) {
             // Highlight the subarrays being merged
             const start = step.merge[0];
