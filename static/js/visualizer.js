@@ -105,21 +105,22 @@ document.addEventListener('DOMContentLoaded', function() {
      * Visualizes the given array as bars
      */
     function visualizeArray(array) {
-        // Use provided array or parse from input
         currentArray = array || parseArrayInput();
         if (currentArray.length === 0) return;
 
         // Clear previous visualization
         visualizationContainer.innerHTML = '';
-        
+
+        // Only show the initial array as a single visualizer (not for algorithm comparison)
+        const visualizerDiv = document.createElement('div');
+        visualizerDiv.className = 'visualizer';
+        visualizerDiv.style.display = 'flex';
+        visualizerDiv.style.alignItems = 'flex-end';
+        visualizerDiv.style.gap = '4px';
+
         // Find the maximum value for scaling
-        let maxValue = currentArray[0];
-        for (let i = 1; i < currentArray.length; i++) {
-            if (currentArray[i] > maxValue) {
-                maxValue = currentArray[i];
-            }
-        }
-        
+        let maxValue = Math.max(...currentArray);
+
         // Create and append bars for each value
         for (let i = 0; i < currentArray.length; i++) {
             const value = currentArray[i];
@@ -127,8 +128,10 @@ document.addEventListener('DOMContentLoaded', function() {
             bar.className = 'bar';
             bar.style.height = Math.floor((value / maxValue) * 200) + 'px';
             bar.setAttribute('data-value', value);
-            visualizationContainer.appendChild(bar);
+            visualizerDiv.appendChild(bar);
         }
+
+        visualizationContainer.appendChild(visualizerDiv);
     }
 
     /**
@@ -228,14 +231,71 @@ document.addEventListener('DOMContentLoaded', function() {
             return response.json();
         })
         .then(function(data) {
-            // Start visualization with the first algorithm's steps just for now with only one algo
-            const firstAlgo = algorithms[0];
-            animationSteps = data[firstAlgo];
-            currentStep = 0;
-            isAnimating = true;
-            animationPaused = false;
-            visualizeArray(array);
-            animateSteps();
+            visualizationContainer.innerHTML = '';
+
+            // Store animation state for each algorithm
+            const animations = [];
+
+            algorithms.forEach(function(algo, idx) {
+                const steps = data[algo];
+                if (!steps || steps.error) return;
+
+                // Create a container for this algorithm
+                const algoDiv = document.createElement('div');
+                algoDiv.className = 'visualizer';
+                algoDiv.style.display = 'flex';
+                algoDiv.style.flexDirection = 'column';
+                algoDiv.style.alignItems = 'center';
+
+                // Add a label
+                const label = document.createElement('div');
+                label.textContent = (algorithmInfo[algo]?.name || algo) + ' Sort';
+                label.style.marginBottom = '10px';
+                label.style.fontWeight = 'bold';
+                algoDiv.appendChild(label);
+
+                // Create the bars container
+                const barsDiv = document.createElement('div');
+                barsDiv.className = 'bars-container';
+                barsDiv.style.display = 'flex';
+                barsDiv.style.alignItems = 'flex-end';
+                barsDiv.style.gap = '4px';
+
+                // Find the maximum value for scaling
+                const maxValue = Math.max(...array);
+
+                // Create bars for the initial array
+                array.forEach(function(value) {
+                    const bar = document.createElement('div');
+                    bar.className = 'bar';
+                    bar.style.height = Math.floor((value / maxValue) * 200) + 'px';
+                    bar.style.width = '30px';
+                    bar.setAttribute('data-value', value);
+                    barsDiv.appendChild(bar);
+                });
+
+                algoDiv.appendChild(barsDiv);
+                visualizationContainer.appendChild(algoDiv);
+
+                // Store animation state for this algorithm
+                animations.push({
+                    barsDiv: barsDiv,
+                    array: array.slice(),
+                    steps: steps,
+                    currentStep: 0,
+                    isAnimating: true,
+                    animationPaused: false,
+                    animationTimeout: null
+                });
+            });
+
+            // Animate all algorithms in parallel
+            animations.forEach(function(anim) {
+                animateStepsMulti(anim);
+            });
+
+            // Store for pause/step/reset controls if needed (advanced: you may want to refactor controls for multi-algo)
+            window._algoAnimations = animations;
         })
         .catch(function(error) {
             console.error('Error fetching sorting steps:', error);
@@ -244,28 +304,15 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // ------------------------------------------------------------
-    // ANIMATION FUNCTIONS
-    // ------------------------------------------------------------
-    /**
-     * Animates through the sorting steps
-     */
-    function animateSteps() {
-        // Check if animation should continue
-        // the base case of the recusrion
-        if (!isAnimating || currentStep >= animationSteps.length) {
-            if (currentStep >= animationSteps.length) {
-                resetControls();
-            }
+    // Animate steps for a specific algorithm's barsDiv
+    function animateStepsMulti(anim) {
+        if (!anim.isAnimating || anim.currentStep >= anim.steps.length) {
             return;
         }
+        if (anim.animationPaused) return;
 
-        // Do nothing if paused
-        //another base case for the recursion
-        if (animationPaused) return;
-
-        const step = animationSteps[currentStep];
-        const bars = visualizationContainer.querySelectorAll('.bar');
+        const step = anim.steps[anim.currentStep];
+        const bars = anim.barsDiv.children;
 
         // Reset all bars to default color
         for (let i = 0; i < bars.length; i++) {
@@ -371,11 +418,13 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         // Move to next step
-        currentStep++;
+        anim.currentStep++;
         
         // Calculate delay based on speed (convert speed 1-10 to delay 1000ms-100ms)
         const delay = 1100 - (animationSpeed * 100);
-        animationTimeout = setTimeout(animateSteps, delay);
+        anim.animationTimeout = setTimeout(function() {
+            animateStepsMulti(anim);
+        }, delay);
     }
 
     /**
