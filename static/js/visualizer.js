@@ -119,7 +119,12 @@ document.addEventListener('DOMContentLoaded', function() {
         visualizerDiv.style.gap = '4px';
 
         // Find the maximum value for scaling
-        let maxValue = Math.max(...currentArray);
+        let maxValue = currentArray[0];
+        for (let i = 1; i < currentArray.length; i++) {
+            if (currentArray[i] > maxValue) {
+                maxValue = currentArray[i];
+            }
+        }
 
         // Create and append bars for each value
         for (let i = 0; i < currentArray.length; i++) {
@@ -184,7 +189,8 @@ document.addEventListener('DOMContentLoaded', function() {
         // Update UI controls
         startBtn.disabled = true;
         pauseBtn.disabled = false;
-        stepBtn.disabled = false;
+        // Disable step button if multiple algorithms are selected
+        stepBtn.disabled = selectedAlgorithms.length > 1; 
         resetBtn.disabled = false;
         
         // Fetch sorting steps from server
@@ -249,7 +255,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 // Add a label
                 const label = document.createElement('div');
-                label.textContent = (algorithmInfo[algo]?.name || algo) + ' Sort';
+                label.textContent = (algorithmInfo[algo]?.name || algo);
                 label.style.marginBottom = '10px';
                 label.style.fontWeight = 'bold';
                 algoDiv.appendChild(label);
@@ -262,7 +268,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 barsDiv.style.gap = '4px';
 
                 // Find the maximum value for scaling
-                const maxValue = Math.max(...array);
+                let maxValue = currentArray[0];
+                for (let i = 1; i < currentArray.length; i++) {
+                    if (currentArray[i] > maxValue) {
+                        maxValue = currentArray[i];
+                    }
+                }
 
                 // Create bars for the initial array
                 array.forEach(function(value) {
@@ -294,7 +305,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 animateStepsMulti(anim);
             });
 
-            // Store for pause/step/reset controls if needed (advanced: you may want to refactor controls for multi-algo)
             window._algoAnimations = animations;
         })
         .catch(function(error) {
@@ -306,20 +316,26 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Animate steps for a specific algorithm's barsDiv
     function animateStepsMulti(anim) {
+        // Check if the specific animation is finished or paused
         if (!anim.isAnimating || anim.currentStep >= anim.steps.length) {
-            return;
+            // Check if all animations are finished
+            if (window._algoAnimations && window._algoAnimations.every(a => !a.isAnimating || a.currentStep >= a.steps.length)) {
+                resetControls(); // Reset controls only when ALL animations are done
+            }
+            return; 
         }
-        if (anim.animationPaused) return;
+        // Use the individual animation's paused state
+        if (anim.animationPaused) return; 
 
         const step = anim.steps[anim.currentStep];
         const bars = anim.barsDiv.children;
 
-        // Reset all bars to default color
+        // Reset all bars to default color for this specific visualizer
         for (let i = 0; i < bars.length; i++) {
             bars[i].className = 'bar';
         }
 
-        // Process the current step
+        // Process the current step (logic remains the same)
         if (step.compare) {
             // Highlight bars being compared
             const i = step.compare[0];
@@ -397,15 +413,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 bars[index].classList.add('placing');
                 
                 // Calculate the height based on the maximum value in the array
-                const maxValue = Math.max(...currentArray);
+                let maxValue = currentArray[0];
+                for (let i = 1; i < currentArray.length; i++) {
+                    if (currentArray[i] > maxValue) {
+                        maxValue = currentArray[i];
+                    }
+                }
                 const heightPercent = Math.floor((value / maxValue) * 200) + 'px';
                 
                 // Update the bar's height and value
                 bars[index].style.height = heightPercent;
                 bars[index].setAttribute('data-value', value);
                 
-                // Also update our currentArray to keep track of the actual values
-                currentArray[index] = value;
+                anim.array[index] = value; 
             }
         } else if (step.mergeComplete) {
             // Highlight the completed merged subarray
@@ -417,13 +437,14 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
 
-        // Move to next step
+        // Move to next step for this animation
         anim.currentStep++;
         
-        // Calculate delay based on speed (convert speed 1-10 to delay 1000ms-100ms)
-        const delay = 1100 - (animationSpeed * 100);
+        // Calculate delay based on global speed
+        const delay = 1100 - (animationSpeed * 100); 
+        // Set timeout for this specific animation
         anim.animationTimeout = setTimeout(function() {
-            animateStepsMulti(anim);
+            animateStepsMulti(anim); // Pass the specific anim object recursively
         }, delay);
     }
 
@@ -431,40 +452,57 @@ document.addEventListener('DOMContentLoaded', function() {
      * Toggles pause/resume of animation
      */
     function togglePause() {
-        animationPaused = !animationPaused;
+        // Toggle the global paused state
+        animationPaused = !animationPaused; 
+        
+        if (window._algoAnimations) {
+            window._algoAnimations.forEach(function(anim) {
+                anim.animationPaused = animationPaused; // Update each animation's paused state
+                if (animationPaused) {
+                    // Clear timeout when pausing
+                    clearTimeout(anim.animationTimeout); 
+                } else {
+                    // Resume animation if it wasn't finished
+                    if (anim.isAnimating && anim.currentStep < anim.steps.length) {
+                        animateStepsMulti(anim); // Pass the specific anim object
+                    }
+                }
+            });
+        }
+
+        // Update button text
         if (animationPaused){
             pauseBtn.textContent = 'Resume';
-        }
-        
-        else{
+        } else {
             pauseBtn.textContent = 'Pause';
-            animateSteps();
         }
     }
 
-    /**
-     * Steps through the visualization manually
-     */
     function stepVisualization() {
-        if (!isAnimating) return;
+        // Only allow stepping if exactly one algorithm is running and it's paused
+        if (!window._algoAnimations || window._algoAnimations.length !== 1) return;
         
-        // Cancel any scheduled animation
-        clearTimeout(animationTimeout);
-        animationPaused = true;
-        pauseBtn.textContent = 'Resume';
-        
+        const anim = window._algoAnimations[0];
+        if (!anim.isAnimating || !anim.animationPaused) return; // Must be paused to step
+
+        // Ensure global state reflects the single animation's state for processing
+        // This part is tricky and might need better state management if stepping is crucial for multi-algo
+        currentStep = anim.currentStep; 
+        animationSteps = anim.steps; 
+        // currentArray might also need updating if place/swap modified it
+
         // Process one step if available
         if (currentStep < animationSteps.length) {
             const step = animationSteps[currentStep];
-            const bars = visualizationContainer.querySelectorAll('.bar');
+            const bars = anim.barsDiv.children; // Use the correct bars
             
             // Reset all bars to default color
             for (let i = 0; i < bars.length; i++) {
                 bars[i].className = 'bar';
             }
-            
-            // Process the current step
+
             if (step.compare) {
+                 // Highlight bars being compared
                 const i = step.compare[0];
                 const j = step.compare[1];
                 
@@ -473,42 +511,36 @@ document.addEventListener('DOMContentLoaded', function() {
                     bars[j].classList.add('comparing');
                 }
             } else if (step.swap) {
+                 // Highlight and swap bars
                 const i = step.swap[0];
                 const j = step.swap[1];
                 
                 if (i < bars.length && j < bars.length) {
                     bars[i].classList.add('swapping');
                     bars[j].classList.add('swapping');
-                    
-                    // Swap heights and values
+
+                    // Get the heights and values
                     const heightI = bars[i].style.height;
                     const heightJ = bars[j].style.height;
                     const valueI = bars[i].getAttribute('data-value');
                     const valueJ = bars[j].getAttribute('data-value');
-                    
+
+                    // Swap heights and values
                     bars[i].style.height = heightJ;
                     bars[j].style.height = heightI;
                     bars[i].setAttribute('data-value', valueJ);
                     bars[j].setAttribute('data-value', valueI);
                 }
             } else if (step.divide) {
-                // Highlight the subarray being divided
+                 // Highlight the subarray being divided
                 const start = step.divide[0];
                 const end = step.divide[1];
                 
                 for (let i = start; i <= end && i < bars.length; i++) {
                     bars[i].classList.add('dividing');
                 }
-                
-                // Optional: Add a visual divider
-                if (step.divide[2]) { // If there's a midpoint specified
-                    const mid = step.divide[2];
-                    if (mid < bars.length - 1) {
-                        bars[mid].classList.add('divider');
-                    }
-                }
             } else if (step.merge) {
-                // Highlight the subarrays being merged
+                 // Highlight the subarrays being merged
                 const start = step.merge[0];
                 const mid = step.merge[1];
                 const end = step.merge[2];
@@ -523,13 +555,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     bars[i].classList.add('merging-right');
                 }
             } else if (step.pivot) {
-                // Highlight the pivot element in quicksort
+                 // Highlight the pivot element in quicksort
                 const pivotIndex = step.pivot;
                 if (pivotIndex < bars.length) {
                     bars[pivotIndex].classList.add('pivot');
                 }
             } else if (step.partition) {
-                // Highlight the entire partition being processed
+                 // Highlight the entire partition being processed
                 const start = step.partition[0];
                 const end = step.partition[1];
                 
@@ -537,7 +569,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     bars[i].classList.add('partitioning');
                 }
             } else if (step.place) {
-                // Direct placement of a value at an index (especially for merge sort)
+                 // Direct placement of a value at an index (especially for merge sort)
                 const index = step.place[0];
                 const value = step.place[1];
                 
@@ -545,7 +577,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     bars[index].classList.add('placing');
                     
                     // Calculate the height based on the maximum value in the array
-                    const maxValue = Math.max(...currentArray);
+                    const maxValue = Math.max(...anim.array);
                     const heightPercent = Math.floor((value / maxValue) * 200) + 'px';
                     
                     // Update the bar's height and value
@@ -553,10 +585,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     bars[index].setAttribute('data-value', value);
                     
                     // Also update our currentArray to keep track of the actual values
-                    currentArray[index] = value;
+                    anim.array[index] = value;
                 }
             } else if (step.mergeComplete) {
-                // Highlight the completed merged subarray
+                 // Highlight the completed merged subarray
                 const start = step.mergeComplete[0];
                 const end = step.mergeComplete[1];
                 
@@ -566,10 +598,12 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             // Move to next step
-            currentStep++;
+            anim.currentStep++; // Update the specific animation's step
+            currentStep = anim.currentStep; // Keep global step in sync (for now)
             
             // Reset controls if finished
-            if (currentStep >= animationSteps.length) {
+            if (anim.currentStep >= anim.steps.length) {
+                anim.isAnimating = false; // Mark this animation as finished
                 resetControls();
             }
         }
@@ -579,12 +613,24 @@ document.addEventListener('DOMContentLoaded', function() {
      * Resets the visualization to initial state
      */
     function resetVisualization() {
-        clearTimeout(animationTimeout);
-        isAnimating = false;
+        // Clear timeouts for all animations
+        if (window._algoAnimations) {
+            window._algoAnimations.forEach(function(anim) {
+                clearTimeout(anim.animationTimeout);
+                anim.isAnimating = false; // Mark as not animating
+            });
+        }
+        window._algoAnimations = []; // Clear the animations array
+
+        // Reset global state variables
+        isAnimating = false; // Although maybe redundant if _algoAnimations controls this
         animationPaused = false;
         currentStep = 0;
+        animationSteps = [];
+        clearTimeout(animationTimeout); // Clear any lingering global timeout just in case
+
         resetControls();
-        visualizeArray(parseArrayInput());
+        visualizeArray(parseArrayInput()); // Redraw the initial array
     }
 
     /**
@@ -594,7 +640,7 @@ document.addEventListener('DOMContentLoaded', function() {
         startBtn.disabled = false;
         pauseBtn.disabled = true;
         pauseBtn.textContent = 'Pause';
-        stepBtn.disabled = true;
+        stepBtn.disabled = true; // Always disable step on reset, re-enable on start if single algo
         resetBtn.disabled = true;
     }
 
@@ -625,9 +671,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 '<p><strong>Time Complexity:</strong> ' + info.timeComplexity + '</p>' +
                 '<p><strong>Space Complexity:</strong> ' + info.spaceComplexity + '</p>';
         } else if (selectedAlgorithms.length > 1) {
-            // Multiple algorithms selected
-            algorithmDescription.innerHTML = 
-                '<p>Multiple algorithms selected. Start visualization to compare them.</p>';
+            // Multiple algorithms selected - build HTML for all
+            algorithmDescription.innerHTML = ''; // Clear previous content
+            for(let i = 0; i < selectedAlgorithms.length; i++){
+                const algo = selectedAlgorithms[i];
+                const info = algorithmInfo[algo];
+                
+                // Append info for each algorithm
+                algorithmDescription.innerHTML += 
+                    '<div style="margin-bottom: 15px;">' + // Add some spacing between entries
+                    '<h3>' + info.name + '</h3>' +
+                    '<p>' + info.description + '</p>' +
+                    '<p><strong>Time Complexity:</strong> ' + info.timeComplexity + '</p>' +
+                    '<p><strong>Space Complexity:</strong> ' + info.spaceComplexity + '</p>' +
+                    '</div>';
+            }
         } else {
             // No algorithms selected
             algorithmDescription.innerHTML = 
