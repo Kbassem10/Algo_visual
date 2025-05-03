@@ -1,4 +1,6 @@
+import time
 def bubble_sort(arr):
+    start_time = time.time()
     steps = []
     n = len(arr)
     for i in range(n):
@@ -7,4 +9,7 @@ def bubble_sort(arr):
             if arr[j] > arr[j + 1]:
                 arr[j], arr[j + 1] = arr[j + 1], arr[j]
                 steps.append({'swap': [j, j+1]})
-    return steps
+    
+    end_time = time.time()
+    time_taken = end_time - start_time
+    return steps, time_taken * 1000

@@ -1,4 +1,6 @@
+import time
 def selection_sort(arr):
+    start_time = time.time()
     steps = []
     n = len(arr)
     for i in range(n):
@@ -10,4 +12,8 @@ def selection_sort(arr):
         if min_index != i:
             arr[i], arr[min_index] = arr[min_index], arr[i]
             steps.append({'swap': [i, min_index]})
-    return steps
+        
+    end_time = time.time()
+    time_taken = end_time - start_time
+
+    return steps, time_taken * 1000

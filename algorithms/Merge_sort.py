@@ -1,4 +1,6 @@
+import time
 def merge_sort(arr):
+    start_time = time.time()
     # Create a list to store visualization steps
     steps = []
     
@@ -71,5 +73,7 @@ def merge_sort(arr):
     
     # Start the merge sort process
     divide_and_conquer(0, len(arr) - 1)
-    
-    return steps
+
+    end_time = time.time()
+    time_taken = end_time - start_time
+    return steps, time_taken * 1000

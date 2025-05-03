@@ -38,10 +38,11 @@ def sort():
 
     for algo in selected_algorithms:
         if algo in ALLOWED_ALGORITHMS:
-            result = ALLOWED_ALGORITHMS[algo](array[:])
-            results[algo] = result
+            algo_func = ALLOWED_ALGORITHMS[algo]
+            result, time_taken = algo_func(array[:])
+            results[algo] = {'steps': result, 'time_taken': f"{time_taken:.2f}"}
         else:
-            results[algo] = {'error': 'Unsupported algorithm'}
+            results[algo] = {'error': 'Unsupported algorithm', 'time_taken': 'N/A'}
 
     return jsonify(results)
 

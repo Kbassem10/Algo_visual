@@ -243,8 +243,11 @@ document.addEventListener('DOMContentLoaded', function() {
             const animations = [];
 
             algorithms.forEach(function(algo, idx) {
-                const steps = data[algo];
-                if (!steps || steps.error) return;
+                const algoData = data[algo]; // Get data for this specific algorithm
+                if (!algoData || algoData.error) return; // Skip this algorithm
+
+                const steps = algoData.steps;
+                const timeTaken = algoData.time_taken; // Get the time taken
 
                 // Create a container for this algorithm
                 const algoDiv = document.createElement('div');
@@ -253,37 +256,51 @@ document.addEventListener('DOMContentLoaded', function() {
                 algoDiv.style.flexDirection = 'column';
                 algoDiv.style.alignItems = 'center';
 
-                // Add a label
+                // Add a label for the algorithm name
                 const label = document.createElement('div');
                 label.textContent = (algorithmInfo[algo]?.name || algo);
-                label.style.marginBottom = '10px';
+                label.style.marginBottom = '5px'; // Adjust spacing
                 label.style.fontWeight = 'bold';
                 algoDiv.appendChild(label);
 
+                // Add element to display time taken
+                const timeDiv = document.createElement('div');
+                timeDiv.textContent = `Time: ${timeTaken}ms`; // Display formatted time
+                timeDiv.style.fontSize = '0.9em';
+                timeDiv.style.color = '#555';
+                timeDiv.style.marginBottom = '10px'; // Spacing before bars
+                algoDiv.appendChild(timeDiv);
+
+
                 // Create the bars container
                 const barsDiv = document.createElement('div');
-                barsDiv.className = 'bars-container';
+                                barsDiv.className = 'bars-container';
                 barsDiv.style.display = 'flex';
                 barsDiv.style.alignItems = 'flex-end';
                 barsDiv.style.gap = '4px';
 
                 // Find the maximum value for scaling
-                let maxValue = currentArray[0];
-                for (let i = 1; i < currentArray.length; i++) {
-                    if (currentArray[i] > maxValue) {
-                        maxValue = currentArray[i];
+                let maxValue = array[0]; // Use the initial array passed to fetchSortingSteps
+                for (let i = 1; i < array.length; i++) {
+                    if (array[i] > maxValue) {
+                        maxValue = array[i];
                     }
                 }
+                 // Ensure maxValue is at least 1 to avoid division by zero
+                maxValue = Math.max(maxValue, 1);
 
                 // Create bars for the initial array
                 array.forEach(function(value) {
                     const bar = document.createElement('div');
                     bar.className = 'bar';
-                    bar.style.height = Math.floor((value / maxValue) * 200) + 'px';
+                    // Ensure height calculation handles zero max value or zero value gracefully
+                    const heightValue = maxValue > 0 ? Math.floor((value / maxValue) * 200) : 0;
+                    bar.style.height = heightValue + 'px';
                     bar.style.width = '30px';
                     bar.setAttribute('data-value', value);
                     barsDiv.appendChild(bar);
                 });
+
 
                 algoDiv.appendChild(barsDiv);
                 visualizationContainer.appendChild(algoDiv);
@@ -291,18 +308,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Store animation state for this algorithm
                 animations.push({
                     barsDiv: barsDiv,
-                    array: array.slice(),
+                    array: array.slice(), // Use the original array slice for this instance
                     steps: steps,
                     currentStep: 0,
                     isAnimating: true,
                     animationPaused: false,
-                    animationTimeout: null
+                    animationTimeout: null,
+                    initialMaxValue: maxValue // Store initial max value if needed later
                 });
             });
 
             // Animate all algorithms in parallel
             animations.forEach(function(anim) {
-                animateStepsMulti(anim);
+                                animateStepsMulti(anim);
             });
 
             window._algoAnimations = animations;
@@ -412,20 +430,14 @@ document.addEventListener('DOMContentLoaded', function() {
             if (index < bars.length) {
                 bars[index].classList.add('placing');
                 
-                // Calculate the height based on the maximum value in the array
-                let maxValue = currentArray[0];
-                for (let i = 1; i < currentArray.length; i++) {
-                    if (currentArray[i] > maxValue) {
-                        maxValue = currentArray[i];
-                    }
-                }
-                const heightPercent = Math.floor((value / maxValue) * 200) + 'px';
+                // Calculate the height based on the *initial* maximum value for consistency
+                const heightPercent = Math.floor((value / anim.initialMaxValue) * 200) + 'px';
                 
                 // Update the bar's height and value
                 bars[index].style.height = heightPercent;
                 bars[index].setAttribute('data-value', value);
                 
-                anim.array[index] = value; 
+                anim.array[index] = value; // Update the array state for this animation instance
             }
         } else if (step.mergeComplete) {
             // Highlight the completed merged subarray
@@ -576,9 +588,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (index < bars.length) {
                     bars[index].classList.add('placing');
                     
-                    // Calculate the height based on the maximum value in the array
-                    const maxValue = Math.max(...anim.array);
-                    const heightPercent = Math.floor((value / maxValue) * 200) + 'px';
+                    // Calculate the height based on the initial maximum value
+                    const heightPercent = Math.floor((value / anim.initialMaxValue) * 200) + 'px';
                     
                     // Update the bar's height and value
                     bars[index].style.height = heightPercent;

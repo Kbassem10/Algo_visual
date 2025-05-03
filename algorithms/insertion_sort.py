@@ -1,4 +1,6 @@
+import time
 def insertion_sort(arr):
+    start_time = time.time()
     steps = []
     n = len(arr)
     for i in range(1, n):
@@ -13,7 +15,7 @@ def insertion_sort(arr):
             else:
                 break
         arr[j + 1] = key
-    return steps
-
-arr2 = [64, 25, 12, 22, 11]
-insertion_sort(arr2)
+    
+    end_time = time.time()
+    time_taken = end_time - start_time
+    return steps, time_taken * 1000

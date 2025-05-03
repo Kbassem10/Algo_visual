@@ -1,4 +1,7 @@
+import time
 def quick_sort(arr):
+    start_time = time.time()
+
     steps = []
     
     def partition(start, end):
@@ -56,4 +59,7 @@ def quick_sort(arr):
     # Start the quick sort algorithm
     quick_sort_recursive(0, len(arr) - 1)
     
-    return steps
+    end_time = time.time()
+    time_taken = end_time - start_time
+    
+    return steps, time_taken * 1000
