@@ -159,7 +159,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 result.push(num);
             }
-            
+            // Use .length property instead of .length() method
+            if (result.length > 20){ 
+                alert('You can not input more than 20 numbers because they might not be visible');
+                return []; 
+            }
             return result;
         } catch (error) {
             alert('Please enter valid numbers separated by commas');
