@@ -59,7 +59,7 @@ def request_amount_exceed(error):
     return render_template('error_handle.html', error_code = "429", error_description= "You exceeded the Maximum amount of requests! Please Try Again Later"), 429
 
 @app.errorhandler(405)
-def page_not_found(error):
+def method_not_allowed(error):
     return render_template('error_handle.html', error_code = "405", error_description = "Method Not Allowed."), 405
 
 @app.errorhandler(Exception)
