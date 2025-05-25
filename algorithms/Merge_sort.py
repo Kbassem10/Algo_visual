@@ -1,14 +1,16 @@
 import time
 def merge_sort(arr):
+
+    #start the timer
     start_time = time.time()
-    # Create a list to store visualization steps
+    #a list to store the steps
     steps = []
     
     def merge(start, mid, end):
-        # Visualize the subarrays being merged
+        #show the two parts that are now merging together
         steps.append({'merge': [start, mid, end]})
         
-        # Create temporary arrays for the two halves
+        # Create temporary arrays for the two halves for visualization
         left = arr[start:mid+1]
         right = arr[mid+1:end+1]
         
@@ -51,24 +53,23 @@ def merge_sort(arr):
         steps.append({'mergeComplete': [start, end]})
     
     def divide_and_conquer(start, end):
-        """Recursively divide the array and merge the sorted subarrays."""
-        # Base case: if the subarray has only one element, it's already sorted
+        #if the subarray has only one element, it's already sorted
         if start >= end:
             return
             
-        # Find the middle point to divide the array
+        #find the mid to divide the array
         mid = start + (end - start) // 2
         
-        # Visualize the division of the array
+        # store it to the steps to visual on the frontend
         steps.append({'divide': [start, end, mid]})
         
-        # Recursively sort the first half
+        #call the left half again to devide it too
         divide_and_conquer(start, mid)
         
-        # Recursively sort the second half
+        #call the right half again to devide it too
         divide_and_conquer(mid + 1, end)
         
-        # Merge the two sorted halves
+        #call the function to merge the first two halves on the stack of the devide now
         merge(start, mid, end)
     
     # Start the merge sort process

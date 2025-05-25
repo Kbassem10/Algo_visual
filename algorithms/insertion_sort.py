@@ -1,6 +1,10 @@
 import time
 def insertion_sort(arr):
+
+    #start the timer
     start_time = time.time()
+
+    #a list to store the steps
     steps = []
     n = len(arr)
     for i in range(1, n):
@@ -16,6 +20,7 @@ def insertion_sort(arr):
                 break
         arr[j + 1] = key
     
+    #end the timer and return it
     end_time = time.time()
     time_taken = end_time - start_time
     return steps, time_taken * 1000
