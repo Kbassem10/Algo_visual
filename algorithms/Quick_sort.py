@@ -1,5 +1,7 @@
 import time
 def quick_sort(arr):
+
+    #start the timer
     start_time = time.time()
 
     steps = []
@@ -59,6 +61,7 @@ def quick_sort(arr):
     # Start the quick sort algorithm
     quick_sort_recursive(0, len(arr) - 1)
     
+    #end the timer to calculate the time taken
     end_time = time.time()
     time_taken = end_time - start_time
     
