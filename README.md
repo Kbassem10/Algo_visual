@@ -4,6 +4,7 @@ A web application for visualizing various algorithms using Flask. This project a
 
 ## Project Structure
 
+
 ```
 Algo_visual/
 ├── algorithms/           # Algorithm implementation files
