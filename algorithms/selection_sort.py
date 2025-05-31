@@ -1,3 +1,4 @@
+#betgib aaz8ar rakam lel awal
 import time
 def selection_sort(arr):
 

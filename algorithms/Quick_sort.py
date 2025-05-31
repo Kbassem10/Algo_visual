@@ -1,3 +1,4 @@
+#beta5od pivot w bet2asem el array l as8ar w akbar men el pivot w ba3daha ta5od pivot tani lel asa8r wel akbar w te2asem etc...
 import time
 def quick_sort(arr):
 

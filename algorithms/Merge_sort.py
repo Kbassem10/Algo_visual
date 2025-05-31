@@ -1,3 +1,4 @@
+#bet2asem le subproblems w terateb w heya betgama3 tani
 import time
 def merge_sort(arr):
 
