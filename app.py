@@ -4,7 +4,6 @@
 # Mahmoud Ahmed Farag (ID: 231002115) – Algorithm Specialist and Testing 
 #importing flask to make the app works as backend
 from flask import Flask, render_template, request, jsonify
-
 #import json to send the data to the frontend in a suitable way
 import json
 
